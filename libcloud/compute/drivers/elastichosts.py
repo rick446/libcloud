@@ -74,6 +74,12 @@ STANDARD_DRIVES = {
         'size_gunzipped': '1GB',
         'supports_deployment': True,
     },
+    '0ea314eb-8100-40b8-a12a-0888c1208c6f': {
+        'uuid': '0ea314eb-8100-40b8-a12a-0888c1208c6f',
+        'description': 'Ubuntu Linux 12.04.1 LTS',
+        'size_gunzipped': '3GB',
+        'supports_deployment': True,
+        },
     'b9d0eb72-d273-43f1-98e3-0d4b87d372c0': {
         'uuid': 'b9d0eb72-d273-43f1-98e3-0d4b87d372c0',
         'description': 'Windows Web Server 2008',
