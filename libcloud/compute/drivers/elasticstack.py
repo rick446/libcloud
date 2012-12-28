@@ -175,11 +175,19 @@ class ElasticStackBaseNodeDriver(NodeDriver):
         return response.status == 204
 
     def destroy_node(self, node):
+        # Get the drive info so we can kill the drive as well
+        response = self.connection.request(
+            action='/servers/%s/info' % (node.id),
+            method='GET'
+        ).object
+        drive_uuid = response['ide:0:0']
+
         # Kills the server immediately
         response = self.connection.request(
             action='/servers/%s/destroy' % (node.id),
             method='POST'
         )
+        self.ex_destroy_drive(drive_uuid)
         return response.status == 204
 
     def list_images(self, location=None):
