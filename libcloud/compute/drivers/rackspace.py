@@ -15,6 +15,8 @@
 """
 Rackspace driver
 """
+import threading
+
 from libcloud.compute.types import Provider, LibcloudError
 from libcloud.compute.base import NodeLocation
 from libcloud.compute.drivers.openstack import OpenStack_1_0_Connection,\
@@ -134,11 +136,28 @@ class RackspaceConnection(OpenStack_1_1_Connection):
         else:
             raise LibcloudError('Could not find specified endpoint')
 
+class RealRackspaceConnection(RackspaceConnection):
+    _registry = {}
+    _lock = threading.Lock()
 
+    @classmethod
+    def get(cls, auth_url, auth_version, get_endpoint_args):
+        ckey = (auth_url, auth_version, tuple(sorted(get_endpoint_args.items())))
+        actual_cls = cls._registry.get(ckey, None)
+        if actual_cls is not None: return actual_cls
+        with cls._lock:
+            actual_cls = type(
+                'RackspaceConnection_%r' % (ckey,),
+                (RackspaceConnection,),
+                dict(auth_url=auth_url,
+                     _auth_version=auth_version,
+                     get_endpoint_args=get_endpoint_args))
+            cls._registry[ckey] = actual_cls
+            return actual_cls
+            
 class RackspaceNodeDriver(OpenStack_1_1_NodeDriver):
     name = 'Rackspace Cloud'
     website = 'http://www.rackspace.com'
-    connectionCls = RackspaceConnection
     type = Provider.RACKSPACE
     api_name = None
 
@@ -155,16 +174,16 @@ class RackspaceNodeDriver(OpenStack_1_1_NodeDriver):
             raise ValueError('Invalid datacenter: %s' % (datacenter))
 
         if datacenter in ['dfw', 'ord']:
-            self.connectionCls.auth_url = AUTH_URL_US
+            auth_url = AUTH_URL_US
             self.api_name = 'rackspacenovaus'
         elif datacenter == 'lon':
-            self.connectionCls.auth_url = AUTH_URL_UK
+            auth_url = AUTH_URL_UK
             self.api_name = 'rackspacenovalon'
 
-        self.connectionCls._auth_version = '2.0'
-        self.connectionCls.get_endpoint_args = \
-            ENDPOINT_ARGS_MAP[datacenter]
-
+        self.connectionCls = RealRackspaceConnection.get(
+            auth_url, '2.0', 
+            ENDPOINT_ARGS_MAP[datacenter])
+            
         self.datacenter = datacenter
 
         super(RackspaceNodeDriver, self).__init__(key=key, secret=secret,
