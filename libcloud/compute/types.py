@@ -69,6 +69,7 @@ class Provider(object):
     @cvar VCL: VCL driver
     @cvar KTUCLOUD: kt ucloud driver
     @cvar GRIDSPOT: Gridspot driver
+    @cvar DIGITAL_OCEAN: Digital Ocean driver
     """
     DUMMY = 'dummy'
     EC2 = 'ec2'
@@ -110,6 +111,7 @@ class Provider(object):
     VCL = 'vcl'
     KTUCLOUD = 'ktucloud'
     GRIDSPOT = 'gridspot'
+    DIGITAL_OCEAN = 'digital_ocean'
     RACKSPACE_FIRST_GEN = 'rackspace_first_gen'
     HOSTVIRTUAL = 'hostvirtual'
 

@@ -120,6 +120,8 @@ class BrightboxNodeDriver(NodeDriver):
         )
 
     def _to_location(self, data):
+        if data is None:
+            return None
         return NodeLocation(
             id=data['id'],
             name=data['handle'],
