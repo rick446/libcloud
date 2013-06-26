@@ -25,7 +25,7 @@ from libcloud.common.base import ConnectionUserAndKey
 from libcloud.common.base import JsonResponse
 from libcloud.compute.base import NodeImage, NodeSize, Node
 from libcloud.compute.base import NodeDriver, NodeLocation
-from libcloud.compute.types import Provider, NodeState
+from libcloud.compute.types import Provider, NodeState, LibcloudError
 
 
 class DigitalOceanConnection(ConnectionUserAndKey):
@@ -92,6 +92,8 @@ class DigitalOceanNodeDriver(NodeDriver):
         elem = self.connection.request(
             '/droplets/new',
             params=params).object
+        if elem['status'] == 'ERROR':
+            raise LibcloudError, elem['error_message']
         n = Node(
             id=elem['droplet']['id'],
             name=elem['droplet']['name'],
