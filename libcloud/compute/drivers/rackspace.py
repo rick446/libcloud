@@ -35,6 +35,12 @@ ENDPOINT_ARGS_MAP = {
     'ord': {'service_type': 'compute',
             'name': 'cloudServersOpenStack',
             'region': 'ORD'},
+    'syd': {'service_type': 'compute',
+            'name': 'cloudServersOpenStack',
+            'region': 'SYD'},
+    'iad': {'service_type': 'compute',
+            'name': 'cloudServersOpenStack',
+            'region': 'IAD'},
     'lon': {'service_type': 'compute',
             'name': 'cloudServersOpenStack',
             'region': 'LON'}
@@ -154,7 +160,7 @@ class RealRackspaceConnection(RackspaceConnection):
                      get_endpoint_args=get_endpoint_args))
             cls._registry[ckey] = actual_cls
             return actual_cls
-            
+
 class RackspaceNodeDriver(OpenStack_1_1_NodeDriver):
     name = 'Rackspace Cloud'
     website = 'http://www.rackspace.com'
@@ -170,10 +176,10 @@ class RackspaceNodeDriver(OpenStack_1_1_NodeDriver):
         @type datacenter: C{str}
         """
 
-        if datacenter not in ['dfw', 'ord', 'lon']:
+        if datacenter not in ['dfw', 'ord', 'syd', 'iad', 'lon']:
             raise ValueError('Invalid datacenter: %s' % (datacenter))
 
-        if datacenter in ['dfw', 'ord']:
+        if datacenter in ['dfw', 'ord', 'iad', 'syd']:
             auth_url = AUTH_URL_US
             self.api_name = 'rackspacenovaus'
         elif datacenter == 'lon':
@@ -181,9 +187,9 @@ class RackspaceNodeDriver(OpenStack_1_1_NodeDriver):
             self.api_name = 'rackspacenovalon'
 
         self.connectionCls = RealRackspaceConnection.get(
-            auth_url, '2.0', 
+            auth_url, '2.0',
             ENDPOINT_ARGS_MAP[datacenter])
-            
+
         self.datacenter = datacenter
 
         super(RackspaceNodeDriver, self).__init__(key=key, secret=secret,
