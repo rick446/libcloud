@@ -155,12 +155,25 @@ class RackspaceDNSDriver(DNSDriver, OpenStackDriverMixin):
         return zones
 
     def list_records(self, zone):
+        return list(self.iterate_records(zone))
+
+    def iterate_records(self, zone):
         self.connection.set_context({'resource': 'zone', 'id': zone.id})
-        response = self.connection.request(action='/domains/%s' % (zone.id),
-                                           params={'showRecord': True}).object
-        records = self._to_records(data=response['recordsList']['records'],
-                                   zone=zone)
-        return records
+        limit = 100
+        offset = 0
+        while True:
+            response = self.connection.request(
+                action='/domains/%s' % (zone.id),
+                params={'showRecord': True,
+                        'offset': offset,
+                        'limit': limit}).object
+            records = self._to_records(data=response['recordsList']['records'],
+                                       zone=zone)
+            for record in records:
+                yield record
+            offset += len(records)
+            if offset >= response['recordsList']['totalEntries']:
+                break
 
     def get_zone(self, zone_id):
         self.connection.set_context({'resource': 'zone', 'id': zone_id})
