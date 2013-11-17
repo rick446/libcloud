@@ -67,7 +67,7 @@ class BrightboxNodeDriver(NodeDriver):
                                      'server_groups', 'hostname',
                                      'started_at', 'created_at',
                                      'deleted_at'])
-        extra_data['zone'] = self._to_location(data['zone'])
+        extra_data['zone'] = self._to_location(data.get('zone', '--'))
 
         ipv6_addresses = [interface['ipv6_address'] for interface
                           in data['interfaces'] if 'ipv6_address' in interface]
